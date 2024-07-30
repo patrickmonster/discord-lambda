@@ -30,6 +30,7 @@
         "fastify-plugin": "^4.5.1",
         "fastify-raw-body": "^4.3.0",
         "http": "^0.0.1-security",
+        "isolated-vm": "^5.0.1",
         "mysql2": "^3.11.0",
         "tsconfig-paths": "^4.2.0",
         "tweetnacl": "^1.0.3",
