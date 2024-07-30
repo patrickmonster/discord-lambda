@@ -1,0 +1,78 @@
+name: Deploy to ECR - prod.
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+
+  build:
+
+    name: Build Image
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.10.0]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+
+    steps:
+      - name: ✅ 체크아웃 source code.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ ${{ matrix.node-version }} 버전의 노드로 세팅합니다.
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: ✨ 패키지 설치
+        working-directory: ./
+        run: |
+          yarn
+          yarn add -D tsc-alias tsc
+        
+      - name: ✨ 빌드 과정을 시작
+        working-directory: ./
+        run: yarn run build
+        
+      - name: zip file
+        run: |
+          zip -r dist/lambda.zip node_modules
+          cd dist
+          zip -r lambda.zip ./
+
+      - name: 🌎 AWS에 접속
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name : 🚀 AWS 환경 변수 셋팅
+        run: |
+          
+          # 환경변수 셋팅
+          filename="dist/.env"
+          path="/first/production/"
+
+          # 기존 파일 삭제
+          rm $filename
+          
+          # .env 파일 생성
+          echo DB_USER=$(aws ssm get-parameters --region ap-northeast-2 --names $path"DB_USER" --query Parameters[0].Value | sed 's/"//g') >> $filename
+          echo DB_HOST=$(aws ssm get-parameters --region ap-northeast-2 --names $path"DB_HOST" --query Parameters[0].Value | sed 's/"//g')  >> $filename
+          echo DB_PASSWD=$(aws ssm get-parameters --region ap-northeast-2 --names $path"DB_PASSWD" --query Parameters[0].Value | sed 's/"//g')  >> $filename
+
+          echo DISCORD_TOKEN=$(aws ssm get-parameters --region ap-northeast-2 --names $path"DISCORD_TOKEN" --query Parameters[0].Value | sed 's/"//g')  >> $filename
+
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./dist/lambda.zip s3://orefinger-pipline/orefinger-bat/
+
+      # --s3-location bucket=orefinger-pipline,bundleType=zip,key=orefinger-bat/orefinger.bat.zip
+      - name: update code
+        run: aws lambda update-function-code 
+          --function-name discord-bot 
+          --s3-bucket orefinger-pipline --s3-key orefinger-bat/lambda.zip
