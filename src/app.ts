@@ -1,19 +1,32 @@
-import awsLambdaFastify from '@fastify/aws-lambda';
-import Fastify from 'fastify';
+import AutoLoad from '@fastify/autoload';
+import helmet from '@fastify/helmet';
+import fastify from 'fastify';
 
-function init() {
-    const app = Fastify();
-    app.get('/', (request, reply) => reply.send({ hello: 'world' }));
-    return app;
-}
+import { join } from 'path';
 
-if (require.main === module) {
-    // called directly i.e. "node app"
-    init().listen({ port: 3000 }, err => {
-        if (err) console.error(err);
-        console.log('server listening on 3000');
-    });
-} else {
-    // required as a module => executed on aws lambda
-    exports.handler = awsLambdaFastify(init());
-}
+import Multipart from '@fastify/sensible';
+
+//////////////////////////////////////////////////////////////////////
+// 환경변수
+
+const server = fastify({
+    // logger: env.NODE_ENV != 'prod'
+    logger: { transport: { target: '@fastify/one-line-logger' } },
+});
+
+// 플러그인
+server.register(helmet, { global: true });
+server.register(Multipart);
+server.register(AutoLoad, { dir: join(__dirname, 'plugins') });
+
+// 라우터
+server.register(AutoLoad, { dir: join(__dirname, 'routes'), ignorePattern: /.*(test|spec).*/ });
+
+export default server;
+
+server.addHook('onClose', async () => {
+    close();
+});
+
+//////////////////////////////////////////////////////////////////////
+// 프로세서 모듈
