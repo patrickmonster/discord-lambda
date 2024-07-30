@@ -7,11 +7,8 @@ import { env } from 'process';
 
 const envDir = join(env.PWD || __dirname, `/.env`);
 
-console.log('envDir', envDir);
 if (existsSync(envDir)) {
     config({ path: envDir });
-} else {
-    console.error('Not Found .env file');
 }
 
 import app from './app';

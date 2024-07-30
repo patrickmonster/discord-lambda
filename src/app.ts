@@ -22,6 +22,12 @@ server.register(AutoLoad, { dir: join(__dirname, 'plugins') });
 // 라우터
 server.register(AutoLoad, { dir: join(__dirname, 'routes'), ignorePattern: /.*(test|spec).*/ });
 
+// 서버 요청 카운트
+server.addHook('onRequest', (request, reply, done) => {
+    console.log(`Request: ${request.method} ${request.url}`);
+    done();
+});
+
 export default server;
 
 //////////////////////////////////////////////////////////////////////
