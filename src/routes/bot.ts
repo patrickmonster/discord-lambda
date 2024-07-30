@@ -3,7 +3,6 @@ import { APIInteraction, InteractionType } from 'discord-api-types/v10';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { InteractionResponseType } from 'utils/interaction';
 
-import axios from 'axios';
 import ivm from 'isolated-vm';
 
 enum RequestMtthod {
@@ -64,40 +63,40 @@ export default async (fastify: FastifyInstance, opts: any) => {
                 return res.status(200).send({ type: InteractionResponseType.PONG });
             }
 
-            const isolate = new ivm.Isolate({ memoryLimit: 100 });
-            isolate.createContext({ inspector: true }).then(async context => {
-                const jail = context.global;
-                await jail.set('global', jail.derefInto());
-                await jail.set('_ivm', ivm);
+            // const isolate = new ivm.Isolate({ memoryLimit: 100 });
+            // isolate.createContext({ inspector: true }).then(async context => {
+            //     const jail = context.global;
+            //     await jail.set('global', jail.derefInto());
+            //     await jail.set('_ivm', ivm);
 
-                await jail.set(
-                    'discordAPI',
-                    new ivm.Reference(async (method: RequestMtthod, opts: any, callback: ivm.Reference<any>) => {
-                        axios('', {
-                            method: method,
-                            ...opts,
-                        })
-                            .then(res => {
-                                // function (err: any, response: any) {
-                                //     if (err) {
-                                //         console.log('error in request put');
-                                //         callback.applySync(undefined, [err]);
-                                //     } else {
-                                //         console.log('success!');
-                                //         callback.applySync(undefined, [null, 'success']);
-                                //     }
-                                // }
+            //     await jail.set(
+            //         'discordAPI',
+            //         new ivm.Reference(async (method: RequestMtthod, opts: any, callback: ivm.Reference<any>) => {
+            //             axios('', {
+            //                 method: method,
+            //                 ...opts,
+            //             })
+            //                 .then(res => {
+            //                     // function (err: any, response: any) {
+            //                     //     if (err) {
+            //                     //         console.log('error in request put');
+            //                     //         callback.applySync(undefined, [err]);
+            //                     //     } else {
+            //                     //         console.log('success!');
+            //                     //         callback.applySync(undefined, [null, 'success']);
+            //                     //     }
+            //                     // }
 
-                                console.log('success!');
-                                callback.applySync(undefined, [null, 'success']);
-                            })
-                            .catch(err => {
-                                console.log('error in request put');
-                                callback.applySync(undefined, [err]);
-                            });
-                    })
-                );
-            });
+            //                     console.log('success!');
+            //                     callback.applySync(undefined, [null, 'success']);
+            //                 })
+            //                 .catch(err => {
+            //                     console.log('error in request put');
+            //                     callback.applySync(undefined, [err]);
+            //                 });
+            //         })
+            //     );
+            // });
 
             // 응답이 유동적인 처리를 해야함.
             const interaction = fastify.interaction(req, res);
