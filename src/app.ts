@@ -14,6 +14,14 @@ const server = fastify({
     logger: { transport: { target: '@fastify/one-line-logger' } },
 });
 
+server.get('/ping', { schema: { hide: true } }, async (req, res) => 'pong');
+
+// 서버 요청 카운트
+server.addHook('onRequest', (request, reply, done) => {
+    console.log(`Request: ${request.method} ${request.url}`);
+    done();
+});
+
 // 플러그인
 server.register(helmet, { global: true });
 server.register(Multipart);
@@ -21,12 +29,6 @@ server.register(AutoLoad, { dir: join(__dirname, 'plugins') });
 
 // 라우터
 server.register(AutoLoad, { dir: join(__dirname, 'routes'), ignorePattern: /.*(test|spec).*/ });
-
-// 서버 요청 카운트
-server.addHook('onRequest', (request, reply, done) => {
-    console.log(`Request: ${request.method} ${request.url}`);
-    done();
-});
 
 export default server;
 
