@@ -24,9 +24,5 @@ server.register(AutoLoad, { dir: join(__dirname, 'routes'), ignorePattern: /.*(t
 
 export default server;
 
-server.addHook('onClose', async () => {
-    close();
-});
-
 //////////////////////////////////////////////////////////////////////
 // 프로세서 모듈
