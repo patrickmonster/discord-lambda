@@ -17,9 +17,7 @@
     "dependencies": {
         "@fastify/autoload": "^5.10.0",
         "@fastify/aws-lambda": "^4.1.0",
-        "@fastify/helmet": "^11.1.1",
         "@fastify/one-line-logger": "^1.4.0",
-        "@fastify/sensible": "^5.6.0",
         "@fastify/swagger": "^8.15.0",
         "@fastify/swagger-ui": "^4.0.1",
         "aws-lambda": "^1.0.7",
