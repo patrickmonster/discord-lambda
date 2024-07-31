@@ -30,6 +30,14 @@ server.post<{
                 selectUser(request.params?.id)
                     .then(user => {
                         const { body, headers, rawBody } = request;
+                        console.log(
+                            '??',
+                            rawBody || JSON.stringify(body),
+                            `${headers['x-signature-ed25519'] || headers['X-Signature-Ed25519']}`,
+                            `${headers['x-signature-timestamp'] || headers['X-Signature-Timestamp']}`,
+                            `${user.public_key}`
+                        );
+
                         if (
                             verifyKey(
                                 rawBody || JSON.stringify(body),
