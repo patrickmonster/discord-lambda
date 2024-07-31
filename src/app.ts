@@ -51,6 +51,8 @@ server.post<{
                         throw new Error('User not found');
                     })
                     .catch(err => {
+                        console.log('ERROR - USER NOT FOUND', err);
+
                         reply.status(404).send({ error: 'User not found' });
                     }),
         ],
