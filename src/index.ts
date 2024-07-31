@@ -19,10 +19,9 @@ if (require.main === module) {
             console.error(err);
             process.exit(1);
         }
-        console.log(`Server started in  ${process.uptime()}s`);
-        console.log(`Server listening at ${address}`);
     });
 } else {
     // required as a module => executed on aws lambda
+    console.log(`Server started in  ${process.uptime()}s`);
     exports.handler = awsLambdaFastify(app);
 }
